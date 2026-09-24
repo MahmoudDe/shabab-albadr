@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: competition
+    description: Competition operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,104 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /competition/dashboard:
+    get:
+      operationId: getCompetitionDashboard
+      tags: [competition]
+      summary: Get competition dashboard
+      responses:
+        "200":
+          description: Competition dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /competition/teams:
+    get:
+      operationId: listTeams
+      tags: [competition]
+      summary: List teams with roster summaries
+      responses:
+        "200":
+          description: Teams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
+  /competition/players:
+    get:
+      operationId: listPlayers
+      tags: [competition]
+      summary: List players and card statistics
+      responses:
+        "200":
+          description: Players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+  /competition/matches:
+    get:
+      operationId: listMatches
+      tags: [competition]
+      summary: List season matches
+      responses:
+        "200":
+          description: Matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Match"
+  /competition/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [competition]
+      summary: Get player and team leaderboard
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+  /competition/questions:
+    get:
+      operationId: listQuestions
+      tags: [competition]
+      summary: List challenge questions
+      responses:
+        "200":
+          description: Questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+  /competition/events:
+    post:
+      operationId: recordCompetitionEvent
+      tags: [competition]
+      summary: Record a score-changing competition event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompetitionEventInput"
+      responses:
+        "201":
+          description: Updated player card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +133,137 @@ components:
           type: string
       required:
         - status
+    Team:
+      type: object
+      required: [id, name, shortName, color, coach, assistantCoach, points, wins, draws, losses, goalsFor, goalsAgainst, playerCount, captainName]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        shortName: { type: string }
+        color: { type: string }
+        coach: { type: string }
+        assistantCoach: { type: string }
+        points: { type: integer }
+        wins: { type: integer }
+        draws: { type: integer }
+        losses: { type: integer }
+        goalsFor: { type: integer }
+        goalsAgainst: { type: integer }
+        playerCount: { type: integer }
+        captainName: { type: string }
+    PlayerStats:
+      type: object
+      required: [newPoints, repeatPoints, challengePoints, attendancePoints, onlinePoints, specialTaskPoints, total, redCards, manOfMatch]
+      properties:
+        newPoints: { type: integer }
+        repeatPoints: { type: integer }
+        challengePoints: { type: integer }
+        attendancePoints: { type: integer }
+        onlinePoints: { type: integer }
+        specialTaskPoints: { type: integer }
+        total: { type: integer }
+        redCards: { type: integer }
+        manOfMatch: { type: boolean }
+    Player:
+      type: object
+      required: [id, name, teamId, teamName, role, avatarInitials, cardRating, stats]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        teamId: { type: integer }
+        teamName: { type: string }
+        role: { type: string }
+        avatarInitials: { type: string }
+        cardRating: { type: integer }
+        stats:
+          $ref: "#/components/schemas/PlayerStats"
+    Match:
+      type: object
+      required: [id, week, status, dateLabel, homeTeamId, homeTeamName, homeTeamShortName, awayTeamId, awayTeamName, awayTeamShortName, homeScore, awayScore, attacks]
+      properties:
+        id: { type: integer }
+        week: { type: integer }
+        status: { type: string }
+        dateLabel: { type: string }
+        homeTeamId: { type: integer }
+        homeTeamName: { type: string }
+        homeTeamShortName: { type: string }
+        awayTeamId: { type: integer }
+        awayTeamName: { type: string }
+        awayTeamShortName: { type: string }
+        homeScore: { type: integer }
+        awayScore: { type: integer }
+        attacks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attack"
+    Attack:
+      type: object
+      required: [id, label, description, status, winnerTeamId]
+      properties:
+        id: { type: integer }
+        label: { type: string }
+        description: { type: string }
+        status: { type: string }
+        winnerTeamId: { type: ["integer", "null"] }
+    Dashboard:
+      type: object
+      required: [seasonLabel, completedWeeks, totalWeeks, totalStudents, activePlayers, nextSessionLabel, nextSessionDate, featuredPlayer, teams, recentActivity]
+      properties:
+        seasonLabel: { type: string }
+        completedWeeks: { type: integer }
+        totalWeeks: { type: integer }
+        totalStudents: { type: integer }
+        activePlayers: { type: integer }
+        nextSessionLabel: { type: string }
+        nextSessionDate: { type: string }
+        featuredPlayer:
+          $ref: "#/components/schemas/Player"
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/Team"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+    Activity:
+      type: object
+      required: [id, title, description, timeLabel, type]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        timeLabel: { type: string }
+        type: { type: string }
+    Leaderboard:
+      type: object
+      required: [teams, players]
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/Team"
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+    Question:
+      type: object
+      required: [id, category, prompt, points, difficulty, isPublished]
+      properties:
+        id: { type: integer }
+        category: { type: string }
+        prompt: { type: string }
+        points: { type: integer }
+        difficulty: { type: string }
+        isPublished: { type: boolean }
+    CompetitionEventInput:
+      type: object
+      required: [playerId, category, points, reason]
+      properties:
+        playerId: { type: integer }
+        category: { type: string }
+        points: { type: integer, minimum: -10, maximum: 20 }
+        reason: { type: string, minLength: 1 }
 

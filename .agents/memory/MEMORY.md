@@ -1,0 +1,1 @@
+- [Generated client DOM typings](codegen-dom-iterable.md) — include `dom.iterable` because generated fetch helpers use `Headers.entries()`.

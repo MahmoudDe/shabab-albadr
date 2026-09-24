@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 42 38% 94%;
+  --foreground: 224 39% 15%;
+  --border: 40 23% 83%;
+  --input: 40 23% 83%;
+  --ring: 38 93% 53%;
+  --card: 43 37% 97%;
+  --card-foreground: 224 39% 15%;
+  --card-border: 40 25% 86%;
+  --popover: 43 37% 97%;
+  --popover-foreground: 224 39% 15%;
+  --popover-border: 40 25% 86%;
+  --primary: 226 43% 18%;
+  --primary-foreground: 42 38% 94%;
+  --secondary: 161 33% 91%;
+  --secondary-foreground: 167 48% 22%;
+  --muted: 39 24% 89%;
+  --muted-foreground: 220 15% 43%;
+  --accent: 39 93% 54%;
+  --accent-foreground: 225 42% 15%;
+  --destructive: 5 70% 51%;
+  --destructive-foreground: 0 0% 98%;
+  --app-font-sans: 'IBM Plex Sans Arabic', sans-serif;
+  --app-font-mono: 'Space Grotesk', monospace;
+  --radius: 1rem;
+  --sidebar: 226 43% 18%;
+  --sidebar-foreground: 43 37% 97%;
+  --sidebar-border: 225 31% 28%;
+  --sidebar-primary: 39 93% 54%;
+  --sidebar-primary-foreground: 225 42% 15%;
+  --sidebar-accent: 225 32% 25%;
+  --sidebar-accent-foreground: 43 37% 97%;
+  --sidebar-ring: 39 93% 54%;
+  --chart-1: 39 93% 54%;
+  --chart-2: 161 57% 42%;
+  --chart-3: 12 73% 55%;
+  --chart-4: 226 43% 34%;
+  --chart-5: 48 81% 67%;
+}
+
+.dark {
+  --background: 225 42% 11%;
+  --foreground: 42 38% 94%;
+  --border: 225 31% 25%;
+  --input: 225 31% 25%;
+  --card: 225 37% 15%;
+  --card-foreground: 42 38% 94%;
+  --card-border: 225 31% 25%;
+  --popover: 225 37% 15%;
+  --popover-foreground: 42 38% 94%;
+  --popover-border: 225 31% 25%;
+  --primary: 39 93% 54%;
+  --primary-foreground: 225 42% 11%;
+  --secondary: 161 33% 21%;
+  --secondary-foreground: 161 57% 80%;
+  --muted: 225 31% 20%;
+  --muted-foreground: 225 14% 67%;
+  --accent: 161 57% 42%;
+  --accent-foreground: 225 42% 11%;
+  --destructive: 5 70% 51%;
+  --destructive-foreground: 0 0% 98%;
+  --sidebar: 225 42% 9%;
+  --sidebar-foreground: 42 38% 94%;
+  --sidebar-border: 225 31% 20%;
+  --sidebar-primary: 39 93% 54%;
+  --sidebar-primary-foreground: 225 42% 11%;
+  --sidebar-accent: 225 31% 17%;
+  --sidebar-accent-foreground: 42 38% 94%;
+  --sidebar-ring: 39 93% 54%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply font-sans antialiased bg-background text-foreground; margin: 0; }
+  button, a, input, select, textarea { font: inherit; }
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseLine { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+.animate-rise { animation: rise .45s ease both; }
+.delay-1 { animation-delay: .06s; }
+.delay-2 { animation-delay: .12s; }
+.delay-3 { animation-delay: .18s; }
+.delay-4 { animation-delay: .24s; }
+.pitch-grid { background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 24px 24px; }
+.scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
+.number-font { font-family: var(--app-font-mono); letter-spacing: -.04em; }
