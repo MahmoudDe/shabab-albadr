@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PlayerAttributes } from './playerAttributes';
 import type { PlayerStats } from './playerStats';
 
 export interface Player {
@@ -15,5 +16,6 @@ export interface Player {
   role: string;
   avatarInitials: string;
   cardRating: number;
+  attributes: PlayerAttributes;
   stats: PlayerStats;
 }

@@ -166,7 +166,7 @@ components:
         manOfMatch: { type: boolean }
     Player:
       type: object
-      required: [id, name, teamId, teamName, role, avatarInitials, cardRating, stats]
+      required: [id, name, teamId, teamName, role, avatarInitials, cardRating, attributes, stats]
       properties:
         id: { type: integer }
         name: { type: string }
@@ -175,8 +175,20 @@ components:
         role: { type: string }
         avatarInitials: { type: string }
         cardRating: { type: integer }
+        attributes:
+          $ref: "#/components/schemas/PlayerAttributes"
         stats:
           $ref: "#/components/schemas/PlayerStats"
+    PlayerAttributes:
+      type: object
+      required: [pace, defense, shooting, dribbling, passing, physical]
+      properties:
+        pace: { type: integer }
+        defense: { type: integer }
+        shooting: { type: integer }
+        dribbling: { type: integer }
+        passing: { type: integer }
+        physical: { type: integer }
     Match:
       type: object
       required: [id, week, status, dateLabel, homeTeamId, homeTeamName, homeTeamShortName, awayTeamId, awayTeamName, awayTeamShortName, homeScore, awayScore, attacks]

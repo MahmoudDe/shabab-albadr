@@ -123,3 +123,143 @@
 .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
 .number-font { font-family: var(--app-font-mono); letter-spacing: -.04em; }
+
+.fifa-card {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 0.72;
+  min-height: 380px;
+  overflow: hidden;
+  border: 1px solid rgba(113, 68, 20, .48);
+  border-radius: 28px 28px 20px 20px;
+  color: #19233b;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.72), transparent 32%),
+    linear-gradient(160deg, #f7df9e 0%, #d49d47 53%, #a9672e 100%);
+  box-shadow: 0 22px 32px rgba(26, 33, 55, .18), inset 0 1px rgba(255,255,255,.75);
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+
+.fifa-card:hover {
+  transform: translateY(-6px) rotate(-.6deg);
+  box-shadow: 0 30px 46px rgba(26, 33, 55, .22), inset 0 1px rgba(255,255,255,.75);
+}
+
+.fifa-card::before {
+  position: absolute;
+  inset: 9px;
+  z-index: -1;
+  border: 1px solid rgba(61, 37, 15, .24);
+  border-radius: 21px 21px 15px 15px;
+  content: '';
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 84% 100%, 16% 100%, 0 70%);
+}
+
+.fifa-card::after {
+  position: absolute;
+  right: -22%;
+  bottom: -8%;
+  z-index: -1;
+  width: 120%;
+  height: 55%;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50%;
+  content: '';
+  transform: rotate(-17deg);
+}
+
+.fifa-card__inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding: 20px 19px 18px;
+}
+
+.fifa-card__shine {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(118deg, transparent 24%, rgba(255,255,255,.34) 34%, transparent 47%);
+  opacity: .55;
+  transition: transform .5s ease;
+}
+
+.fifa-card:hover .fifa-card__shine { transform: translateX(30%); }
+
+.fifa-card__crest {
+  display: flex;
+  width: 56px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  border: 2px solid rgba(255,255,255,.6);
+  border-radius: 15px 15px 21px 21px;
+  color: white;
+  box-shadow: 0 8px 14px rgba(36, 26, 12, .18);
+}
+
+.fifa-card__crest span {
+  max-width: 48px;
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fifa-card__portrait {
+  display: flex;
+  min-height: 142px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 5px;
+}
+
+.fifa-card__portrait-ring {
+  display: flex;
+  width: 137px;
+  height: 137px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 50%;
+  background: radial-gradient(circle at 33% 25%, #f8e9bf 0 12%, #bc7a38 53%, #754324 100%);
+  box-shadow: inset 0 0 0 7px rgba(111, 66, 28, .12), 0 12px 21px rgba(67, 39, 17, .19);
+}
+
+.fifa-card__initials {
+  display: flex;
+  width: 98px;
+  height: 98px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,.65);
+  border-radius: 50%;
+  background: linear-gradient(155deg, #223253, #0e172a);
+  color: #f9d98b;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -.08em;
+  box-shadow: 0 10px 17px rgba(15, 23, 42, .28);
+}
+
+.fifa-card__medal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.5);
+  padding: 4px 8px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .fifa-card { min-height: 350px; }
+  .fifa-card__portrait-ring { width: 120px; height: 120px; }
+  .fifa-card__initials { width: 86px; height: 86px; font-size: 1.95rem; }
+}

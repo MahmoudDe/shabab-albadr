@@ -335,7 +335,65 @@ function TeamsPage() {
 
 function PlayerCard({ player, teams, onEvent }: { player: Player; teams?: Team[]; onEvent: (player: Player) => void }) {
   const team = teamById(teams, player.teamId);
-  return <div data-testid={`card-player-${player.id}`} className="group relative overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl"><div className="absolute -left-10 -top-10 h-36 w-36 rounded-full border border-accent/15" /><div className="relative flex items-start justify-between"><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-base font-bold text-primary">{player.avatarInitials}</div><div><div className="font-bold">{player.name}</div><div className="mt-1 text-[11px] text-primary-foreground/55">{player.teamName} · {player.role}</div></div></div><div className="text-center"><div className="number-font text-2xl font-bold text-accent">{player.cardRating}</div><div className="text-[9px] text-primary-foreground/55">التقييم</div></div></div><div className="relative mt-6 grid grid-cols-3 gap-2 rounded-2xl bg-primary-foreground/8 p-3 text-center"><div><div className="number-font text-lg font-bold">{player.stats.total}</div><div className="text-[9px] text-primary-foreground/50">المجموع</div></div><div><div className="number-font text-lg font-bold">{player.stats.challengePoints}</div><div className="text-[9px] text-primary-foreground/50">تحدّي</div></div><div><div className="number-font text-lg font-bold">{player.stats.attendancePoints}</div><div className="text-[9px] text-primary-foreground/50">حضور</div></div></div><div className="relative mt-3 grid grid-cols-4 gap-1 rounded-xl bg-primary-foreground/5 px-2 py-2 text-center"><div><div className="number-font text-xs font-bold">{player.stats.newPoints}</div><div className="text-[8px] text-primary-foreground/45">جديد</div></div><div><div className="number-font text-xs font-bold">{player.stats.repeatPoints}</div><div className="text-[8px] text-primary-foreground/45">مراجعة</div></div><div><div className="number-font text-xs font-bold">{player.stats.onlinePoints}</div><div className="text-[8px] text-primary-foreground/45">أونلاين</div></div><div><div className="number-font text-xs font-bold">{player.stats.specialTaskPoints}</div><div className="text-[8px] text-primary-foreground/45">خاص</div></div></div><div className="relative mt-4 flex items-center justify-between"><span className="flex items-center gap-1 text-[10px] text-primary-foreground/55">{player.stats.manOfMatch && <><Medal size={13} className="text-accent" /> رجل الجولة</>}</span><button data-testid={`button-record-player-event-${player.id}`} onClick={() => onEvent(player)} className="inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-[11px] font-bold text-primary transition hover:bg-accent/85"><Plus size={13} /> تسجيل حدث</button></div></div>;
+  const attributes = [
+    ['السرعة', player.attributes.pace],
+    ['الدفاع', player.attributes.defense],
+    ['التسديد', player.attributes.shooting],
+    ['المراوغة', player.attributes.dribbling],
+    ['التمرير', player.attributes.passing],
+    ['البدنية', player.attributes.physical],
+  ];
+  const position = player.role === 'كابتن' ? 'CAP' : 'STU';
+
+  return (
+    <div data-testid={`card-player-${player.id}`} className="space-y-3">
+      <div className="fifa-card group">
+        <div className="fifa-card__shine" />
+        <div className="fifa-card__inner">
+          <div className="flex items-start justify-between">
+            <div className="text-center leading-none">
+              <div className="number-font text-[3.2rem] font-bold tracking-[-.09em]">{player.cardRating}</div>
+              <div className="mt-1 text-[10px] font-bold uppercase tracking-[.16em]">{position}</div>
+              <div className="mt-3 h-px w-9 bg-slate-900/25" />
+              <div className="mt-2 text-[10px] font-bold">{player.teamName.replace('فريق ', '')}</div>
+            </div>
+            <div className="fifa-card__crest" style={{ backgroundColor: teamColor(team) }}>
+              <Shield size={21} strokeWidth={2.5} />
+              <span>{team?.shortName || 'البدر'}</span>
+            </div>
+          </div>
+
+          <div className="fifa-card__portrait">
+            <div className="fifa-card__portrait-ring">
+              <div className="fifa-card__initials">{player.avatarInitials}</div>
+            </div>
+            {player.stats.manOfMatch && <div className="fifa-card__medal"><Medal size={13} /> رجل الجولة</div>}
+          </div>
+
+          <div className="mt-auto">
+            <div className="mb-3 text-center text-base font-bold">{player.name}</div>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2 border-t border-slate-900/20 pt-3">
+              {attributes.map(([label, value]) => (
+                <div key={label} className="flex items-baseline justify-between gap-2 text-[11px] font-bold">
+                  <span className="number-font text-base">{value}</span>
+                  <span className="opacity-70">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between rounded-2xl border border-border bg-card px-3 py-2.5">
+        <div className="text-[10px] text-muted-foreground">
+          <span>الرصيد </span>
+          <b className="number-font text-sm text-foreground">{player.stats.total}</b>
+          <span className="mx-1">·</span>
+          <span>متوسط البنود</span>
+        </div>
+        <button data-testid={`button-record-player-event-${player.id}`} onClick={() => onEvent(player)} className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-bold text-primary-foreground transition hover:bg-accent hover:text-primary"><Plus size={13} /> تسجيل حدث</button>
+      </div>
+    </div>
+  );
 }
 
 function PlayersPage({ openEvent }: { openEvent: (player?: Player) => void }) {

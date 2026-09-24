@@ -36,6 +36,14 @@ export const GetCompetitionDashboardResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
   "stats": zod.object({
   "newPoints": zod.number().int(),
   "repeatPoints": zod.number().int(),
@@ -107,6 +115,14 @@ export const ListPlayersResponseItem = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
   "stats": zod.object({
   "newPoints": zod.number().int(),
   "repeatPoints": zod.number().int(),
@@ -177,6 +193,14 @@ export const GetLeaderboardResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
   "stats": zod.object({
   "newPoints": zod.number().int(),
   "repeatPoints": zod.number().int(),
@@ -230,6 +254,14 @@ export const RecordCompetitionEventResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
   "stats": zod.object({
   "newPoints": zod.number().int(),
   "repeatPoints": zod.number().int(),

@@ -14,6 +14,7 @@ export * from './healthStatus';
 export * from './leaderboard';
 export * from './match';
 export * from './player';
+export * from './playerAttributes';
 export * from './playerStats';
 export * from './question';
 export * from './team';

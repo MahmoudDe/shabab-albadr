@@ -215,6 +215,23 @@ function teamDto(
 }
 
 function playerDto(player: typeof competitionPlayers.$inferSelect, teamName: string) {
+  const attributes = {
+    pace: 40 + player.newPoints,
+    defense: 40 + player.repeatPoints,
+    shooting: 40 + player.challengePoints,
+    dribbling: 40 + player.attendancePoints,
+    passing: 40 + player.onlinePoints,
+    physical: 40 + player.specialTaskPoints,
+  };
+  const average =
+    (attributes.pace +
+      attributes.defense +
+      attributes.shooting +
+      attributes.dribbling +
+      attributes.passing +
+      attributes.physical) /
+    6;
+  const rating = Math.max(1, Math.round(average) - player.redCards);
   const total =
     40 +
     player.newPoints +
@@ -231,7 +248,8 @@ function playerDto(player: typeof competitionPlayers.$inferSelect, teamName: str
     teamName,
     role: player.role,
     avatarInitials: player.avatarInitials,
-    cardRating: total,
+    cardRating: rating,
+    attributes,
     stats: {
       newPoints: player.newPoints,
       repeatPoints: player.repeatPoints,

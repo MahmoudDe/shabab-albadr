@@ -38,6 +38,15 @@ export interface PlayerStats {
   manOfMatch: boolean;
 }
 
+export interface PlayerAttributes {
+  pace: number;
+  defense: number;
+  shooting: number;
+  dribbling: number;
+  passing: number;
+  physical: number;
+}
+
 export interface Player {
   id: number;
   name: string;
@@ -46,6 +55,7 @@ export interface Player {
   role: string;
   avatarInitials: string;
   cardRating: number;
+  attributes: PlayerAttributes;
   stats: PlayerStats;
 }
 
