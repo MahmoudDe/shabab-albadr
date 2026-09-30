@@ -55,6 +55,7 @@ export interface Player {
   role: string;
   avatarInitials: string;
   cardRating: number;
+  cardToken: string;
   attributes: PlayerAttributes;
   stats: PlayerStats;
 }
@@ -117,6 +118,106 @@ export interface Question {
   points: number;
   difficulty: string;
   isPublished: boolean;
+}
+
+export interface LoginInput {
+  /** @minLength 1 */
+  username: string;
+  /** @minLength 1 */
+  pin: string;
+}
+
+export type LoginResultRole = typeof LoginResultRole[keyof typeof LoginResultRole];
+
+
+export const LoginResultRole = {
+  admin: 'admin',
+  coach: 'coach',
+} as const;
+
+export interface LoginResult {
+  token: string;
+  name: string;
+  username: string;
+  role: LoginResultRole;
+  /** @nullable */
+  teamId: number | null;
+}
+
+export interface UpdateTeamInput {
+  /** @minLength 1 */
+  name?: string;
+  /** @minLength 1 */
+  shortName?: string;
+  captainId?: number;
+}
+
+export interface AttackInput {
+  id: number;
+  label: string;
+  description: string;
+  status: string;
+  /** @nullable */
+  winnerTeamId: number | null;
+}
+
+export interface CreateMatchInput {
+  week: number;
+  status: string;
+  dateLabel: string;
+  homeTeamId: number;
+  awayTeamId: number;
+  homeScore: number;
+  awayScore: number;
+  attacks: AttackInput[];
+}
+
+export interface UpdateMatchInput {
+  week?: number;
+  status?: string;
+  dateLabel?: string;
+  homeTeamId?: number;
+  awayTeamId?: number;
+  homeScore?: number;
+  awayScore?: number;
+  attacks?: AttackInput[];
+}
+
+export interface Settings {
+  seasonLabel: string;
+  completedWeeks: number;
+  totalWeeks: number;
+}
+
+export interface UpdateSettingsInput {
+  /** @minLength 1 */
+  seasonLabel?: string;
+  /** @minimum 0 */
+  completedWeeks?: number;
+  /** @minimum 1 */
+  totalWeeks?: number;
+}
+
+export interface UpdatePlayerInput {
+  /** @minLength 1 */
+  name?: string;
+  teamId?: number;
+  manOfMatch?: boolean;
+}
+
+export interface CreateQuestionInput {
+  /** @minLength 1 */
+  category: string;
+  /** @minLength 1 */
+  prompt: string;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  points: number;
+  /** @minLength 1 */
+  difficulty: string;
+  isPublished?: boolean;
 }
 
 export interface CompetitionEventInput {

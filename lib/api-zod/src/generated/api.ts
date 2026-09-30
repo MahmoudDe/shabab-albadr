@@ -18,6 +18,65 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Trainer login with username and PIN
+ */
+
+
+
+
+export const LoginBody = zod.object({
+  "username": zod.string().min(1),
+  "pin": zod.string().min(1)
+})
+
+export const LoginResponse = zod.object({
+  "token": zod.string(),
+  "name": zod.string(),
+  "username": zod.string(),
+  "role": zod.enum(['admin', 'coach']),
+  "teamId": zod.number().int().nullable()
+})
+
+
+/**
+ * @summary Get a player's public virtual card by token (QR target)
+ */
+export const GetPlayerCardParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const GetPlayerCardResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "teamId": zod.number().int(),
+  "teamName": zod.string(),
+  "role": zod.string(),
+  "avatarInitials": zod.string(),
+  "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
+  "stats": zod.object({
+  "newPoints": zod.number().int(),
+  "repeatPoints": zod.number().int(),
+  "challengePoints": zod.number().int(),
+  "attendancePoints": zod.number().int(),
+  "onlinePoints": zod.number().int(),
+  "specialTaskPoints": zod.number().int(),
+  "total": zod.number().int(),
+  "redCards": zod.number().int(),
+  "manOfMatch": zod.boolean()
+})
+})
+
+
+/**
  * @summary Get competition dashboard
  */
 export const GetCompetitionDashboardResponse = zod.object({
@@ -36,6 +95,7 @@ export const GetCompetitionDashboardResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
   "attributes": zod.object({
   "pace": zod.number().int(),
   "defense": zod.number().int(),
@@ -115,6 +175,7 @@ export const ListPlayersResponseItem = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
   "attributes": zod.object({
   "pace": zod.number().int(),
   "defense": zod.number().int(),
@@ -136,6 +197,120 @@ export const ListPlayersResponseItem = zod.object({
 })
 })
 export const ListPlayersResponse = zod.array(ListPlayersResponseItem)
+
+
+/**
+ * @summary Edit a team (e.g. rename)
+ */
+export const UpdateTeamParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+
+
+
+
+export const UpdateTeamBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "shortName": zod.string().min(1).optional(),
+  "captainId": zod.number().int().optional()
+})
+
+export const UpdateTeamResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "shortName": zod.string(),
+  "color": zod.string(),
+  "coach": zod.string(),
+  "assistantCoach": zod.string(),
+  "points": zod.number().int(),
+  "wins": zod.number().int(),
+  "draws": zod.number().int(),
+  "losses": zod.number().int(),
+  "goalsFor": zod.number().int(),
+  "goalsAgainst": zod.number().int(),
+  "playerCount": zod.number().int(),
+  "captainName": zod.string()
+})
+
+
+/**
+ * @summary Edit a player (rename or transfer to another team)
+ */
+export const UpdatePlayerParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+
+
+
+export const UpdatePlayerBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "teamId": zod.number().int().optional(),
+  "manOfMatch": zod.boolean().optional()
+})
+
+export const UpdatePlayerResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "teamId": zod.number().int(),
+  "teamName": zod.string(),
+  "role": zod.string(),
+  "avatarInitials": zod.string(),
+  "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
+  "attributes": zod.object({
+  "pace": zod.number().int(),
+  "defense": zod.number().int(),
+  "shooting": zod.number().int(),
+  "dribbling": zod.number().int(),
+  "passing": zod.number().int(),
+  "physical": zod.number().int()
+}),
+  "stats": zod.object({
+  "newPoints": zod.number().int(),
+  "repeatPoints": zod.number().int(),
+  "challengePoints": zod.number().int(),
+  "attendancePoints": zod.number().int(),
+  "onlinePoints": zod.number().int(),
+  "specialTaskPoints": zod.number().int(),
+  "total": zod.number().int(),
+  "redCards": zod.number().int(),
+  "manOfMatch": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Get competition settings
+ */
+export const GetSettingsResponse = zod.object({
+  "seasonLabel": zod.string(),
+  "completedWeeks": zod.number().int(),
+  "totalWeeks": zod.number().int()
+})
+
+
+/**
+ * @summary Update competition settings (admin)
+ */
+
+export const updateSettingsBodyCompletedWeeksMin = 0;
+
+
+
+
+export const UpdateSettingsBody = zod.object({
+  "seasonLabel": zod.string().min(1).optional(),
+  "completedWeeks": zod.number().int().min(updateSettingsBodyCompletedWeeksMin).optional(),
+  "totalWeeks": zod.number().int().min(1).optional()
+})
+
+export const UpdateSettingsResponse = zod.object({
+  "seasonLabel": zod.string(),
+  "completedWeeks": zod.number().int(),
+  "totalWeeks": zod.number().int()
+})
 
 
 /**
@@ -166,6 +341,106 @@ export const ListMatchesResponse = zod.array(ListMatchesResponseItem)
 
 
 /**
+ * @summary Add a match (admin)
+ */
+export const CreateMatchBody = zod.object({
+  "week": zod.number().int(),
+  "status": zod.string(),
+  "dateLabel": zod.string(),
+  "homeTeamId": zod.number().int(),
+  "awayTeamId": zod.number().int(),
+  "homeScore": zod.number().int(),
+  "awayScore": zod.number().int(),
+  "attacks": zod.array(zod.object({
+  "id": zod.number().int(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "status": zod.string(),
+  "winnerTeamId": zod.number().int().nullable()
+}))
+})
+
+export const CreateMatchResponse = zod.object({
+  "id": zod.number().int(),
+  "week": zod.number().int(),
+  "status": zod.string(),
+  "dateLabel": zod.string(),
+  "homeTeamId": zod.number().int(),
+  "homeTeamName": zod.string(),
+  "homeTeamShortName": zod.string(),
+  "awayTeamId": zod.number().int(),
+  "awayTeamName": zod.string(),
+  "awayTeamShortName": zod.string(),
+  "homeScore": zod.number().int(),
+  "awayScore": zod.number().int(),
+  "attacks": zod.array(zod.object({
+  "id": zod.number().int(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "status": zod.string(),
+  "winnerTeamId": zod.number().int().nullable()
+}))
+})
+
+
+/**
+ * @summary Edit a match (admin)
+ */
+export const UpdateMatchParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const UpdateMatchBody = zod.object({
+  "week": zod.number().int().optional(),
+  "status": zod.string().optional(),
+  "dateLabel": zod.string().optional(),
+  "homeTeamId": zod.number().int().optional(),
+  "awayTeamId": zod.number().int().optional(),
+  "homeScore": zod.number().int().optional(),
+  "awayScore": zod.number().int().optional(),
+  "attacks": zod.array(zod.object({
+  "id": zod.number().int(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "status": zod.string(),
+  "winnerTeamId": zod.number().int().nullable()
+})).optional()
+})
+
+export const UpdateMatchResponse = zod.object({
+  "id": zod.number().int(),
+  "week": zod.number().int(),
+  "status": zod.string(),
+  "dateLabel": zod.string(),
+  "homeTeamId": zod.number().int(),
+  "homeTeamName": zod.string(),
+  "homeTeamShortName": zod.string(),
+  "awayTeamId": zod.number().int(),
+  "awayTeamName": zod.string(),
+  "awayTeamShortName": zod.string(),
+  "homeScore": zod.number().int(),
+  "awayScore": zod.number().int(),
+  "attacks": zod.array(zod.object({
+  "id": zod.number().int(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "status": zod.string(),
+  "winnerTeamId": zod.number().int().nullable()
+}))
+})
+
+
+/**
+ * @summary Delete a match (admin)
+ */
+export const DeleteMatchParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DeleteMatchResponse = zod.void()
+
+
+/**
  * @summary Get player and team leaderboard
  */
 export const GetLeaderboardResponse = zod.object({
@@ -193,6 +468,7 @@ export const GetLeaderboardResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
   "attributes": zod.object({
   "pace": zod.number().int(),
   "defense": zod.number().int(),
@@ -231,6 +507,34 @@ export const ListQuestionsResponse = zod.array(ListQuestionsResponseItem)
 
 
 /**
+ * @summary Add a challenge question
+ */
+
+
+export const createQuestionBodyPointsMax = 100;
+
+
+export const createQuestionBodyIsPublishedDefault = true;
+
+export const CreateQuestionBody = zod.object({
+  "category": zod.string().min(1),
+  "prompt": zod.string().min(1),
+  "points": zod.number().int().min(1).max(createQuestionBodyPointsMax),
+  "difficulty": zod.string().min(1),
+  "isPublished": zod.boolean().default(createQuestionBodyIsPublishedDefault)
+})
+
+export const CreateQuestionResponse = zod.object({
+  "id": zod.number().int(),
+  "category": zod.string(),
+  "prompt": zod.string(),
+  "points": zod.number().int(),
+  "difficulty": zod.string(),
+  "isPublished": zod.boolean()
+})
+
+
+/**
  * @summary Record a score-changing competition event
  */
 export const recordCompetitionEventBodyPointsMin = -10;
@@ -254,6 +558,7 @@ export const RecordCompetitionEventResponse = zod.object({
   "role": zod.string(),
   "avatarInitials": zod.string(),
   "cardRating": zod.number().int(),
+  "cardToken": zod.string(),
   "attributes": zod.object({
   "pace": zod.number().int(),
   "defense": zod.number().int(),

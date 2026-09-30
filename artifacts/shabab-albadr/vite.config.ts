@@ -5,27 +5,13 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
+// PORT / BASE_PATH configure the dev server and asset base. They default so a
+// production `vite build` (and a plain `vite dev`) work without extra env; the
+// single-service deploy serves the app at the root, so BASE_PATH defaults to '/'.
 const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    'PORT environment variable is required but was not provided.',
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    'BASE_PATH environment variable is required but was not provided.',
-  );
-}
+const parsedPort = Number(rawPort);
+const port = rawPort && !Number.isNaN(parsedPort) && parsedPort > 0 ? parsedPort : 5173;
+const basePath = process.env.BASE_PATH || '/';
 
 export default defineConfig({
   base: basePath,
@@ -72,6 +58,9 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: process.env.API_PROXY_TARGET
+      ? { '/api': { target: process.env.API_PROXY_TARGET, changeOrigin: true } }
+      : undefined,
   },
   preview: {
     port,

@@ -1,6 +1,14 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 
+// Load local .env (SHEET_ID, PORT, credentials path) when present.
+// In production these come from the platform's environment/secrets.
+try {
+  process.loadEnvFile();
+} catch {
+  // No .env file — rely on the ambient environment.
+}
+
 const rawPort = process.env["PORT"];
 
 if (!rawPort) {

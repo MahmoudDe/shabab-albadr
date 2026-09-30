@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: competition
     description: Competition operations
+  - name: auth
+    description: Authentication operations
 paths:
   /healthz:
     get:
@@ -26,6 +28,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Trainer login with username and PIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Session token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        "401":
+          description: Invalid credentials
+  /competition/card/{token}:
+    get:
+      operationId: getPlayerCard
+      tags: [competition]
+      summary: Get a player's public virtual card by token (QR target)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Player card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "404":
+          description: Not found
   /competition/dashboard:
     get:
       operationId: getCompetitionDashboard
@@ -66,6 +107,81 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Player"
+  /competition/teams/{id}:
+    patch:
+      operationId: updateTeam
+      tags: [competition]
+      summary: Edit a team (e.g. rename)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTeamInput"
+      responses:
+        "200":
+          description: Updated team
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+  /competition/players/{id}:
+    patch:
+      operationId: updatePlayer
+      tags: [competition]
+      summary: Edit a player (rename or transfer to another team)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlayerInput"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+  /competition/settings:
+    get:
+      operationId: getSettings
+      tags: [competition]
+      summary: Get competition settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    patch:
+      operationId: updateSettings
+      tags: [competition]
+      summary: Update competition settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
   /competition/matches:
     get:
       operationId: listMatches
@@ -80,6 +196,60 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Match"
+    post:
+      operationId: createMatch
+      tags: [competition]
+      summary: Add a match (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMatchInput"
+      responses:
+        "201":
+          description: Created match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Match"
+  /competition/matches/{id}:
+    patch:
+      operationId: updateMatch
+      tags: [competition]
+      summary: Edit a match (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMatchInput"
+      responses:
+        "200":
+          description: Updated match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Match"
+    delete:
+      operationId: deleteMatch
+      tags: [competition]
+      summary: Delete a match (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
   /competition/leaderboard:
     get:
       operationId: getLeaderboard
@@ -106,6 +276,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Question"
+    post:
+      operationId: createQuestion
+      tags: [competition]
+      summary: Add a challenge question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuestionInput"
+      responses:
+        "201":
+          description: Created question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
   /competition/events:
     post:
       operationId: recordCompetitionEvent
@@ -166,7 +353,7 @@ components:
         manOfMatch: { type: boolean }
     Player:
       type: object
-      required: [id, name, teamId, teamName, role, avatarInitials, cardRating, attributes, stats]
+      required: [id, name, teamId, teamName, role, avatarInitials, cardRating, cardToken, attributes, stats]
       properties:
         id: { type: integer }
         name: { type: string }
@@ -175,6 +362,7 @@ components:
         role: { type: string }
         avatarInitials: { type: string }
         cardRating: { type: integer }
+        cardToken: { type: string }
         attributes:
           $ref: "#/components/schemas/PlayerAttributes"
         stats:
@@ -270,6 +458,91 @@ components:
         points: { type: integer }
         difficulty: { type: string }
         isPublished: { type: boolean }
+    LoginInput:
+      type: object
+      required: [username, pin]
+      properties:
+        username: { type: string, minLength: 1 }
+        pin: { type: string, minLength: 1 }
+    LoginResult:
+      type: object
+      required: [token, name, username, role, teamId]
+      properties:
+        token: { type: string }
+        name: { type: string }
+        username: { type: string }
+        role: { type: string, enum: [admin, coach] }
+        teamId: { type: ["integer", "null"] }
+    UpdateTeamInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        shortName: { type: string, minLength: 1 }
+        captainId: { type: integer }
+    AttackInput:
+      type: object
+      required: [id, label, description, status, winnerTeamId]
+      properties:
+        id: { type: integer }
+        label: { type: string }
+        description: { type: string }
+        status: { type: string }
+        winnerTeamId: { type: ["integer", "null"] }
+    CreateMatchInput:
+      type: object
+      required: [week, status, dateLabel, homeTeamId, awayTeamId, homeScore, awayScore, attacks]
+      properties:
+        week: { type: integer }
+        status: { type: string }
+        dateLabel: { type: string }
+        homeTeamId: { type: integer }
+        awayTeamId: { type: integer }
+        homeScore: { type: integer }
+        awayScore: { type: integer }
+        attacks:
+          type: array
+          items: { $ref: "#/components/schemas/AttackInput" }
+    UpdateMatchInput:
+      type: object
+      properties:
+        week: { type: integer }
+        status: { type: string }
+        dateLabel: { type: string }
+        homeTeamId: { type: integer }
+        awayTeamId: { type: integer }
+        homeScore: { type: integer }
+        awayScore: { type: integer }
+        attacks:
+          type: array
+          items: { $ref: "#/components/schemas/AttackInput" }
+    Settings:
+      type: object
+      required: [seasonLabel, completedWeeks, totalWeeks]
+      properties:
+        seasonLabel: { type: string }
+        completedWeeks: { type: integer }
+        totalWeeks: { type: integer }
+    UpdateSettingsInput:
+      type: object
+      properties:
+        seasonLabel: { type: string, minLength: 1 }
+        completedWeeks: { type: integer, minimum: 0 }
+        totalWeeks: { type: integer, minimum: 1 }
+    UpdatePlayerInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        teamId: { type: integer }
+        manOfMatch: { type: boolean }
+    CreateQuestionInput:
+      type: object
+      required: [category, prompt, points, difficulty]
+      properties:
+        category: { type: string, minLength: 1 }
+        prompt: { type: string, minLength: 1 }
+        points: { type: integer, minimum: 1, maximum: 100 }
+        difficulty: { type: string, minLength: 1 }
+        isPublished: { type: boolean, default: true }
     CompetitionEventInput:
       type: object
       required: [playerId, category, points, reason]

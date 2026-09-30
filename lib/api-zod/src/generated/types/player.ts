@@ -16,6 +16,7 @@ export interface Player {
   role: string;
   avatarInitials: string;
   cardRating: number;
+  cardToken: string;
   attributes: PlayerAttributes;
   stats: PlayerStats;
 }
