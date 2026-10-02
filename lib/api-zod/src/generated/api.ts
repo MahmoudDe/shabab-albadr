@@ -287,7 +287,8 @@ export const UpdatePlayerResponse = zod.object({
 export const GetSettingsResponse = zod.object({
   "seasonLabel": zod.string(),
   "completedWeeks": zod.number().int(),
-  "totalWeeks": zod.number().int()
+  "totalWeeks": zod.number().int(),
+  "publicUrl": zod.string()
 })
 
 
@@ -303,13 +304,15 @@ export const updateSettingsBodyCompletedWeeksMin = 0;
 export const UpdateSettingsBody = zod.object({
   "seasonLabel": zod.string().min(1).optional(),
   "completedWeeks": zod.number().int().min(updateSettingsBodyCompletedWeeksMin).optional(),
-  "totalWeeks": zod.number().int().min(1).optional()
+  "totalWeeks": zod.number().int().min(1).optional(),
+  "publicUrl": zod.string().optional()
 })
 
 export const UpdateSettingsResponse = zod.object({
   "seasonLabel": zod.string(),
   "completedWeeks": zod.number().int(),
-  "totalWeeks": zod.number().int()
+  "totalWeeks": zod.number().int(),
+  "publicUrl": zod.string()
 })
 
 

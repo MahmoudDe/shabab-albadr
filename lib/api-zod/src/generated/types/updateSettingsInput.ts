@@ -13,4 +13,5 @@ export interface UpdateSettingsInput {
   completedWeeks?: number;
   /** @minimum 1 */
   totalWeeks?: number;
+  publicUrl?: string;
 }

@@ -215,12 +215,15 @@ export type SheetSettings = {
   seasonLabel: string;
   completedWeeks: number;
   totalWeeks: number;
+  /** Public site URL used for player QR codes; empty = use the current origin. */
+  publicUrl: string;
 };
 
 const SETTINGS_DEFAULTS: SheetSettings = {
   seasonLabel: "مسابقة الفصل الأول",
   completedWeeks: 3,
   totalWeeks: 8,
+  publicUrl: "",
 };
 
 // Column order MUST match the header rows in the sheet.
@@ -429,6 +432,7 @@ export async function getSettings(): Promise<SheetSettings> {
     totalWeeks: map.has("totalWeeks")
       ? n(map.get("totalWeeks"))
       : SETTINGS_DEFAULTS.totalWeeks,
+    publicUrl: (map.get("publicUrl") ?? "").trim(),
   };
 }
 

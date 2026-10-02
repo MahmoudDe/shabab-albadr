@@ -162,9 +162,17 @@ function LoginDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
+// QR codes point at the public URL stored in the sheet's Settings tab, so the app
+// can move to another host without touching code. Falls back to the current origin.
+function publicBaseUrl(publicUrl?: string) {
+  const url = (publicUrl || '').trim().replace(/\/+$/, '');
+  return /^https?:\/\//i.test(url) ? url : window.location.origin;
+}
+
 function QrDialog({ player, onClose }: { player: Player; onClose: () => void }) {
   const [dataUrl, setDataUrl] = useState('');
-  const cardUrl = `${window.location.origin}/card/${player.cardToken}`;
+  const settingsQuery = useGetSettings();
+  const cardUrl = `${publicBaseUrl(settingsQuery.data?.publicUrl)}/card/${player.cardToken}`;
   useEffect(() => {
     QRCode.toDataURL(cardUrl, { width: 320, margin: 1 }).then(setDataUrl).catch(() => setDataUrl(''));
   }, [cardUrl]);
@@ -603,16 +611,18 @@ function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [seasonLabel, setSeasonLabel] = useState('');
   const [completedWeeks, setCompletedWeeks] = useState(0);
   const [totalWeeks, setTotalWeeks] = useState(0);
+  const [publicUrl, setPublicUrl] = useState('');
+  const urlInvalid = publicUrl.trim() !== '' && !/^https?:\/\/\S+$/i.test(publicUrl.trim());
   useEffect(() => {
     const s = settingsQuery.data;
-    if (s) { setSeasonLabel(s.seasonLabel); setCompletedWeeks(s.completedWeeks); setTotalWeeks(s.totalWeeks); }
+    if (s) { setSeasonLabel(s.seasonLabel); setCompletedWeeks(s.completedWeeks); setTotalWeeks(s.totalWeeks); setPublicUrl(s.publicUrl); }
   }, [settingsQuery.data]);
   const mutation = useUpdateSettings();
   const invalidate = useInvalidateCompetition();
   const submit = () => {
-    if (!seasonLabel.trim()) return;
+    if (!seasonLabel.trim() || urlInvalid) return;
     mutation.mutate(
-      { data: { seasonLabel: seasonLabel.trim(), completedWeeks, totalWeeks } },
+      { data: { seasonLabel: seasonLabel.trim(), completedWeeks, totalWeeks, publicUrl: publicUrl.trim().replace(/\/+$/, '') } },
       { onSuccess: () => { invalidate(); onClose(); } },
     );
   };
@@ -626,8 +636,14 @@ function SettingsDialog({ onClose }: { onClose: () => void }) {
         <div><label className="mb-2 block text-xs font-bold text-muted-foreground">الأسابيع المكتملة</label><input data-testid="input-settings-completed" type="number" min={0} value={completedWeeks} onChange={(e) => setCompletedWeeks(Number(e.target.value))} className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm outline-none focus:border-accent" /></div>
         <div><label className="mb-2 block text-xs font-bold text-muted-foreground">إجمالي الأسابيع</label><input data-testid="input-settings-total" type="number" min={1} value={totalWeeks} onChange={(e) => setTotalWeeks(Number(e.target.value))} className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm outline-none focus:border-accent" /></div>
       </div>
+      <div>
+        <label className="mb-2 block text-xs font-bold text-muted-foreground">رابط الموقع (لرموز QR)</label>
+        <input data-testid="input-settings-public-url" dir="ltr" value={publicUrl} onChange={(e) => setPublicUrl(e.target.value)} placeholder="https://example.com" className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm outline-none focus:border-accent" />
+        <p className="mt-1.5 text-[11px] text-muted-foreground">اتركه فارغاً لاستخدام عنوان الموقع الحالي.</p>
+        {urlInvalid && <p className="mt-1 text-xs font-bold text-destructive">يجب أن يبدأ الرابط بـ https://</p>}
+      </div>
       {mutation.isError && <p className="text-xs font-bold text-destructive">تعذّر حفظ الإعدادات.</p>}
-      <button data-testid="button-submit-settings" disabled={mutation.isPending || !seasonLabel.trim()} onClick={submit} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50">
+      <button data-testid="button-submit-settings" disabled={mutation.isPending || !seasonLabel.trim() || urlInvalid} onClick={submit} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50">
         {mutation.isPending ? <RefreshCw className="animate-spin" size={16} /> : <Check size={17} />} {mutation.isPending ? 'جارٍ الحفظ...' : 'حفظ'}
       </button>
     </DialogFrame>
@@ -925,9 +941,11 @@ function CardPage({ token }: { token: string }) {
   const teamsQuery = useListTeams();
   const player = cardQuery.data;
   const [qrUrl, setQrUrl] = useState('');
+  const settingsQuery = useGetSettings();
+  const cardLink = `${publicBaseUrl(settingsQuery.data?.publicUrl)}/card/${token}`;
   useEffect(() => {
-    QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQrUrl).catch(() => setQrUrl(''));
-  }, []);
+    QRCode.toDataURL(cardLink, { width: 220, margin: 1 }).then(setQrUrl).catch(() => setQrUrl(''));
+  }, [cardLink]);
   return (
     <div dir="rtl" className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-5 py-10">
       <div className="mb-6 flex items-center gap-3">

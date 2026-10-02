@@ -517,17 +517,19 @@ components:
           items: { $ref: "#/components/schemas/AttackInput" }
     Settings:
       type: object
-      required: [seasonLabel, completedWeeks, totalWeeks]
+      required: [seasonLabel, completedWeeks, totalWeeks, publicUrl]
       properties:
         seasonLabel: { type: string }
         completedWeeks: { type: integer }
         totalWeeks: { type: integer }
+        publicUrl: { type: string }
     UpdateSettingsInput:
       type: object
       properties:
         seasonLabel: { type: string, minLength: 1 }
         completedWeeks: { type: integer, minimum: 0 }
         totalWeeks: { type: integer, minimum: 1 }
+        publicUrl: { type: string }
     UpdatePlayerInput:
       type: object
       properties:

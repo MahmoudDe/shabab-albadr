@@ -187,6 +187,7 @@ export interface Settings {
   seasonLabel: string;
   completedWeeks: number;
   totalWeeks: number;
+  publicUrl: string;
 }
 
 export interface UpdateSettingsInput {
@@ -196,6 +197,7 @@ export interface UpdateSettingsInput {
   completedWeeks?: number;
   /** @minimum 1 */
   totalWeeks?: number;
+  publicUrl?: string;
 }
 
 export interface UpdatePlayerInput {

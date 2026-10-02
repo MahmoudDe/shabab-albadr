@@ -10,4 +10,5 @@ export interface Settings {
   seasonLabel: string;
   completedWeeks: number;
   totalWeeks: number;
+  publicUrl: string;
 }
