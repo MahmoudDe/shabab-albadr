@@ -395,8 +395,18 @@ function SectionHeading({ title, link, onClick }: { title: string; link?: string
   return <div className="mb-4 flex items-center justify-between"><h2 className="text-base font-bold text-primary">{title}</h2>{link && <button data-testid={`button-section-${title}`} onClick={onClick} className="flex items-center gap-1 text-xs font-bold text-muted-foreground transition hover:text-primary">{link}<ChevronLeft size={14} /></button>}</div>;
 }
 
+const TEAM_LOGOS = ['team-1', 'team-2', 'team-3', 'team-4'];
+
+function teamLogo(team?: Team) {
+  if (!team) return undefined;
+  const index = (((team.id - 1) % TEAM_LOGOS.length) + TEAM_LOGOS.length) % TEAM_LOGOS.length;
+  return `${import.meta.env.BASE_URL}logos/${TEAM_LOGOS[index]}.webp`;
+}
+
 function TeamMark({ team, size = 'md' }: { team?: Team; size?: 'sm' | 'md' | 'lg' }) {
-  const dimensions = size === 'lg' ? 'h-16 w-16 text-xl' : size === 'sm' ? 'h-8 w-8 text-[10px]' : 'h-11 w-11 text-sm';
+  const dimensions = size === 'lg' ? 'h-20 w-20 text-xl' : size === 'sm' ? 'h-9 w-9 text-[10px]' : 'h-14 w-14 text-sm';
+  const logo = teamLogo(team);
+  if (logo) return <img src={logo} alt={team?.name || ''} loading="lazy" className={`${dimensions} shrink-0 object-contain drop-shadow-sm`} />;
   return <div className={`${dimensions} flex shrink-0 items-center justify-center rounded-2xl font-bold text-primary-foreground shadow-sm`} style={{ backgroundColor: teamColor(team) }}>{team?.shortName || '—'}</div>;
 }
 
@@ -771,9 +781,8 @@ function PlayerCard({ player, teams, onEvent, onEdit, onQr, authed, hideActions 
               <div className="mt-3 h-px w-9 bg-slate-900/25" />
               <div className="mt-2 text-[10px] font-bold">{player.teamName.replace('فريق ', '')}</div>
             </div>
-            <div className="fifa-card__crest" style={{ backgroundColor: teamColor(team) }}>
-              <Shield size={21} strokeWidth={2.5} />
-              <span>{team?.shortName || 'البدر'}</span>
+            <div className="fifa-card__crest" style={{ backgroundColor: teamLogo(team) ? 'rgba(255,255,255,.92)' : teamColor(team) }}>
+              {teamLogo(team) ? <img src={teamLogo(team)} alt={team?.name || ''} className="h-full w-full object-contain p-1" /> : <><Shield size={21} strokeWidth={2.5} /><span>{team?.shortName || 'البدر'}</span></>}
             </div>
           </div>
 
@@ -848,7 +857,7 @@ function MatchesPage() {
   const isAdmin = auth?.role === 'admin';
   const [matchDialog, setMatchDialog] = useState<{ match?: Match } | undefined>();
   const matches = matchesQuery.data || [];
-  return <DataState loading={matchesQuery.isLoading} error={matchesQuery.isError} empty={!matches.length} onRetry={() => matchesQuery.refetch()}><div className="space-y-7"><PageIntro eyebrow="موسم على شكل مباراة" title="المباريات" description="كل أسبوع يحمل أربع مراحل هجومية. تابع لحظة الحسم، ثم شاهد أثرها على جدول الترتيب." action={isAdmin ? <button data-testid="button-add-match" onClick={() => setMatchDialog({})} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5"><Plus size={16} /> إضافة مباراة</button> : undefined} /><div className="flex items-center justify-between rounded-2xl bg-primary px-5 py-4 text-primary-foreground"><div className="flex items-center gap-3"><div className="rounded-xl bg-accent p-2 text-primary"><Network size={17} /></div><div><div className="text-sm font-bold">نظام الهجمات الأربع</div><div className="mt-1 text-[11px] text-primary-foreground/55">قرآن · حفظ · أونلاين · مهمّة خاصة</div></div></div><Link href="/questions" data-testid="link-matches-questions" className="text-xs font-bold text-accent">بنك الأسئلة <ArrowLeft size={14} className="mr-1 inline" /></Link></div><div className="space-y-4">{matches.map((match) => <MatchCard key={match.id} match={match} teams={teamsQuery.data} onEdit={isAdmin ? (m) => setMatchDialog({ match: m }) : undefined} />)}</div></div>{matchDialog && <MatchDialog match={matchDialog.match} teams={teamsQuery.data || []} onClose={() => setMatchDialog(undefined)} />}</DataState>;
+  return <DataState loading={matchesQuery.isLoading} error={matchesQuery.isError} empty={false} onRetry={() => matchesQuery.refetch()}><div className="space-y-7"><PageIntro eyebrow="موسم على شكل مباراة" title="المباريات" description="كل أسبوع يحمل أربع مراحل هجومية. تابع لحظة الحسم، ثم شاهد أثرها على جدول الترتيب." action={isAdmin ? <button data-testid="button-add-match" onClick={() => setMatchDialog({})} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5"><Plus size={16} /> إضافة مباراة</button> : undefined} /><div className="flex items-center justify-between rounded-2xl bg-primary px-5 py-4 text-primary-foreground"><div className="flex items-center gap-3"><div className="rounded-xl bg-accent p-2 text-primary"><Network size={17} /></div><div><div className="text-sm font-bold">نظام الهجمات الأربع</div><div className="mt-1 text-[11px] text-primary-foreground/55">قرآن · حفظ · أونلاين · مهمّة خاصة</div></div></div><Link href="/questions" data-testid="link-matches-questions" className="text-xs font-bold text-accent">بنك الأسئلة <ArrowLeft size={14} className="mr-1 inline" /></Link></div><div className="space-y-4">{!matches.length && <div data-testid="empty-matches" className="flex min-h-48 flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-8 text-center"><div className="mb-3 rounded-full bg-secondary p-3 text-secondary-foreground"><CalendarDays size={22} /></div><h3 className="font-bold">لا توجد مباريات بعد</h3><p className="mt-1 text-sm text-muted-foreground">{isAdmin ? 'ابدأ الموسم بإضافة أول مباراة.' : 'ستظهر المباريات هنا مع انطلاق الموسم.'}</p></div>}{matches.map((match) => <MatchCard key={match.id} match={match} teams={teamsQuery.data} onEdit={isAdmin ? (m) => setMatchDialog({ match: m }) : undefined} />)}</div></div>{matchDialog && <MatchDialog match={matchDialog.match} teams={teamsQuery.data || []} onClose={() => setMatchDialog(undefined)} />}</DataState>;
 }
 
 const QUESTION_CATEGORIES = ['ماذا تعرف؟', 'المزاد', 'الجرس'];
