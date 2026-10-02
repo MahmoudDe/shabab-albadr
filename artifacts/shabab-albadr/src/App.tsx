@@ -702,7 +702,7 @@ function MatchDialog({ match, teams, onClose }: { match?: Match; teams: Team[]; 
 }
 
 function Standings({ teams = [] }: { teams?: Team[] }) {
-  const ordered = [...teams].sort((a, b) => b.points - a.points);
+  const ordered = [...teams].sort((a, b) => b.points - a.points || (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst) || b.goalsFor - a.goalsFor);
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card">
       <div className="grid grid-cols-[32px_1fr_50px_50px_50px] items-center gap-2 border-b border-border bg-muted/40 px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"><span>#</span><span>الفريق</span><span className="text-center">لعب</span><span className="text-center">فارق</span><span className="text-center">نقاط</span></div>

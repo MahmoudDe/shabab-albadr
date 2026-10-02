@@ -32,6 +32,7 @@ import {
   updatePlayerPoints,
   updateSettings,
   updateTeam,
+  type SheetMatch,
   type SheetPlayer,
   type SheetTeam,
 } from "../lib/sheets";
@@ -77,7 +78,27 @@ const categoryColumn: Record<
   total: "specialTaskPoints",
 };
 
-function teamDto(team: SheetTeam, players: SheetPlayer[]) {
+// Standings are derived from completed matches (win 3, draw 1, loss 0) so they
+// can never drift from the actual results.
+function teamRecord(teamId: number, matches: SheetMatch[]) {
+  const record = { points: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 };
+  for (const m of matches) {
+    if (m.status !== "مكتملة" && m.status !== "completed") continue;
+    const isHome = m.homeTeamId === teamId;
+    if (!isHome && m.awayTeamId !== teamId) continue;
+    const gf = isHome ? m.homeScore : m.awayScore;
+    const ga = isHome ? m.awayScore : m.homeScore;
+    record.goalsFor += gf;
+    record.goalsAgainst += ga;
+    if (gf > ga) { record.wins++; record.points += 3; }
+    else if (gf === ga) { record.draws++; record.points += 1; }
+    else record.losses++;
+  }
+  return record;
+}
+
+function teamDto(team: SheetTeam, players: SheetPlayer[], matches: SheetMatch[]) {
+  const record = teamRecord(team.id, matches);
   const roster = players.filter((player) => player.teamId === team.id);
   const captain = roster.find((player) => player.id === team.captainId) ?? roster[0];
   return {
@@ -87,12 +108,7 @@ function teamDto(team: SheetTeam, players: SheetPlayer[]) {
     color: team.color,
     coach: team.coach,
     assistantCoach: team.assistantCoach,
-    points: team.points,
-    wins: team.wins,
-    draws: team.draws,
-    losses: team.losses,
-    goalsFor: team.goalsFor,
-    goalsAgainst: team.goalsAgainst,
+    ...record,
     playerCount: roster.length,
     captainName: captain?.name ?? "لم يحدد",
   };
@@ -158,8 +174,8 @@ async function getPlayerDtos() {
 }
 
 async function getTeamDtos() {
-  const [teams, players] = await Promise.all([getTeams(), getPlayers()]);
-  return teams.map((team) => teamDto(team, players));
+  const [teams, players, matches] = await Promise.all([getTeams(), getPlayers(), getMatches()]);
+  return teams.map((team) => teamDto(team, players, matches));
 }
 
 async function getMatchDtos() {
@@ -296,7 +312,7 @@ router.patch("/competition/teams/:id", requireTrainer, async (req, res, next) =>
     }
 
     getRequestLog(req).info({ teamId: id }, "Competition team updated");
-    res.json(ListTeamsResponse.element.parse(teamDto(updated, players)));
+    res.json(ListTeamsResponse.element.parse(teamDto(updated, players, await getMatches())));
   } catch (error) {
     next(error);
   }
