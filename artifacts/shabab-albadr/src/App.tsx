@@ -169,9 +169,9 @@ function publicBaseUrl(publicUrl?: string) {
   return /^https?:\/\//i.test(url) ? url : window.location.origin;
 }
 
-// Printed QR codes encode this stable redirect page (docs/index.html on GitHub Pages),
-// which forwards to the live app address stored in docs/config.json.
-const QR_REDIRECT_BASE = 'https://mahmoudde.github.io/shabab-albadr/';
+// Printed QR codes encode this stable redirect page (the public shabab-albadr-go repo on
+// GitHub Pages), which forwards to the live app address in that repo's config.json.
+const QR_REDIRECT_BASE = 'https://mahmoudde.github.io/shabab-albadr-go/';
 const qrLink = (token: string) => `${QR_REDIRECT_BASE}?t=${encodeURIComponent(token)}`;
 
 function QrDialog({ player, onClose }: { player: Player; onClose: () => void }) {
