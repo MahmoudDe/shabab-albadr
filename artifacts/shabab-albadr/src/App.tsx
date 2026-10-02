@@ -169,13 +169,19 @@ function publicBaseUrl(publicUrl?: string) {
   return /^https?:\/\//i.test(url) ? url : window.location.origin;
 }
 
+// Printed QR codes encode this stable redirect page (docs/index.html on GitHub Pages),
+// which forwards to the live app address stored in docs/config.json.
+const QR_REDIRECT_BASE = 'https://mahmoudde.github.io/shabab-albadr/';
+const qrLink = (token: string) => `${QR_REDIRECT_BASE}?t=${encodeURIComponent(token)}`;
+
 function QrDialog({ player, onClose }: { player: Player; onClose: () => void }) {
   const [dataUrl, setDataUrl] = useState('');
   const settingsQuery = useGetSettings();
   const cardUrl = `${publicBaseUrl(settingsQuery.data?.publicUrl)}/card/${player.cardToken}`;
+  const stableUrl = qrLink(player.cardToken);
   useEffect(() => {
-    QRCode.toDataURL(cardUrl, { width: 320, margin: 1 }).then(setDataUrl).catch(() => setDataUrl(''));
-  }, [cardUrl]);
+    QRCode.toDataURL(stableUrl, { width: 1024, margin: 2 }).then(setDataUrl).catch(() => setDataUrl(''));
+  }, [stableUrl]);
   return (
     <div dir="rtl" className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/45 p-4 backdrop-blur-sm">
       <div className="w-full max-w-xs animate-rise overflow-hidden rounded-3xl bg-card shadow-2xl">
@@ -941,8 +947,7 @@ function CardPage({ token }: { token: string }) {
   const teamsQuery = useListTeams();
   const player = cardQuery.data;
   const [qrUrl, setQrUrl] = useState('');
-  const settingsQuery = useGetSettings();
-  const cardLink = `${publicBaseUrl(settingsQuery.data?.publicUrl)}/card/${token}`;
+  const cardLink = qrLink(token);
   useEffect(() => {
     QRCode.toDataURL(cardLink, { width: 220, margin: 1 }).then(setQrUrl).catch(() => setQrUrl(''));
   }, [cardLink]);
