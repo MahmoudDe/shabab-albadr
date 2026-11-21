@@ -1,5 +1,5 @@
 import { type ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import QRCode from 'qrcode';
 import {
   getGetCompetitionDashboardQueryKey,
@@ -73,7 +73,18 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 
-const queryClient = new QueryClient();
+// A 401 means the trainer token is missing/expired: tell the auth provider to sign out
+// instead of leaving admin buttons visible that can only fail.
+const AUTH_EXPIRED_EVENT = 'shabab-albadr-auth-expired';
+const handleAuthError = (error: unknown) => {
+  if ((error as { status?: number } | null)?.status === 401 && currentToken) {
+    window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+  }
+};
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({ onError: handleAuthError }),
+  mutationCache: new MutationCache({ onError: handleAuthError }),
+});
 
 // --- Trainer authentication --------------------------------------------------
 
@@ -83,7 +94,10 @@ type AuthState = { token: string; name: string; username: string; role: 'admin' 
 function readStoredAuth(): AuthState {
   try {
     const raw = localStorage.getItem(AUTH_KEY);
-    return raw ? (JSON.parse(raw) as AuthState) : null;
+    const stored = raw ? (JSON.parse(raw) as AuthState) : null;
+    // Tokens are `<base64url payload>.<signature>`; ignore ones that already expired.
+    const exp = stored ? JSON.parse(atob(stored.token.split('.')[0].replace(/-/g, '+').replace(/_/g, '/'))).exp : 0;
+    return stored && typeof exp === 'number' && exp > Date.now() ? stored : null;
   } catch {
     return null;
   }
@@ -110,6 +124,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
       /* ignore storage errors */
     }
   }, [auth]);
+  useEffect(() => {
+    const onExpired = () => setAuth(null);
+    window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
+  }, []);
   return (
     <AuthContext.Provider value={{ auth, login: setAuth, logout: () => setAuth(null) }}>
       {children}
